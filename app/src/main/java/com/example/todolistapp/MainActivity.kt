@@ -20,10 +20,11 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             TodoListAppTheme {
-               Surface(modifier = Modifier.fillMaxSize()
+               Surface(modifier = Modifier
+                   .fillMaxSize()
                    .padding(top = 40.dp)
                ) {
-                   TodosLists(todos = SampleData.sampleTodos)
+                   TodoListPage()
                }
             }
         }
