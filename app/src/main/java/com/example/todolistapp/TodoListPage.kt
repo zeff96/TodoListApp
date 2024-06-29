@@ -5,10 +5,11 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -68,12 +69,28 @@ fun TodoListsCard(todo: Todo){
 
 @Composable
 fun TodosLists(todos: List<Todo>){
-    LazyColumn {
-        items(todos){todo ->
-            TodoListsCard(todo = todo)
+    LazyColumn(
+        content = {
+            itemsIndexed(todos){index: Int, item: Todo ->
+                TodoListsCard(todo = item)
+            }
         }
+
+    )
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun TodoListPage(){
+    Column(modifier = Modifier
+        .fillMaxHeight()
+        .padding(8.dp)
+    ) {
+        TodosLists(todos = SampleData.sampleTodos)
     }
 }
+
+
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Preview
@@ -81,6 +98,6 @@ fun TodosLists(todos: List<Todo>){
 
 fun PreviewTodosLists(){
     TodoListAppTheme {
-        TodosLists(todos = SampleData.sampleTodos)
+        TodoListPage()
     }
 }
