@@ -20,6 +20,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -28,15 +29,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModelProvider
 import com.example.todolistapp.ui.theme.TodoListAppTheme
 import java.text.SimpleDateFormat
 import java.util.Locale
 
 @Composable
-fun TodoListsCard(todo: Todo){
+fun TodoListsCard(todo: Todo, onDelete: ()-> Unit){
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -62,7 +65,7 @@ fun TodoListsCard(todo: Todo){
             )
         }
         
-        IconButton(onClick = { /*TODO*/ }) {
+        IconButton(onClick = onDelete) {
             Icon(
                 painter = painterResource(id = R.drawable.baseline_delete_24),
                 contentDescription = "Delete",
@@ -72,21 +75,10 @@ fun TodoListsCard(todo: Todo){
     }
 }
 
-@Composable
-fun TodosLists(todos: List<Todo>){
-    LazyColumn(
-        content = {
-            itemsIndexed(todos){index: Int, item: Todo ->
-                TodoListsCard(todo = item)
-            }
-        }
-
-    )
-}
-
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun TodoListPage(){
+fun TodoListPage(viewModel: TodoViewModel){
+    val todoList by viewModel.todoList.observeAsState()
     var inputText by remember {
         mutableStateOf("")
     }
@@ -96,31 +88,36 @@ fun TodoListPage(){
     ) {
         Row(
             modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp),
+                .fillMaxWidth()
+                .padding(8.dp),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             OutlinedTextField(
                 value = inputText,
-                onValueChange = {
-                inputText = it
-            })
-            Button(onClick = { /*TODO*/ }) {
+                onValueChange = { inputText = it },
+            )
+            Button(onClick = {
+                viewModel.addTodo(inputText)
+                inputText = ""
+            }) {
                 Text(text = "Add")
             }
         }
-        TodosLists(todos = SampleData.sampleTodos)
-    }
-}
-
-
-
-@RequiresApi(Build.VERSION_CODES.O)
-@Preview
-@Composable
-
-fun PreviewTodosLists(){
-    TodoListAppTheme {
-        TodoListPage()
+        todoList?.let {
+            LazyColumn(
+                content = {
+                    itemsIndexed(it){index: Int, item: Todo ->
+                        TodoListsCard(todo = item, onDelete = {
+                            viewModel.deleteTodo(item.id)
+                        })
+                    }
+                }
+            )
+        }?: Text(
+            modifier = Modifier.fillMaxWidth(),
+            textAlign = TextAlign.Center,
+            text = "No items yet!",
+            fontSize = 16.sp
+        )
     }
 }
