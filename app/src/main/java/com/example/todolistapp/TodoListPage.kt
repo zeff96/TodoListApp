@@ -6,7 +6,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -30,11 +29,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.ViewModelProvider
-import com.example.todolistapp.ui.theme.TodoListAppTheme
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -45,7 +41,7 @@ fun TodoListsCard(todo: Todo, onDelete: ()-> Unit){
             .fillMaxWidth()
             .padding(8.dp)
             .clip(RoundedCornerShape(16.dp))
-            .background(MaterialTheme.colorScheme.primary)
+            .background(MaterialTheme.colorScheme.scrim)
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -77,15 +73,12 @@ fun TodoListsCard(todo: Todo, onDelete: ()-> Unit){
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun TodoListPage(viewModel: TodoViewModel){
+fun TodoListPage(viewModel: TodoViewModel, modifier: Modifier = Modifier){
     val todoList by viewModel.todoList.observeAsState()
     var inputText by remember {
         mutableStateOf("")
     }
-    Column(modifier = Modifier
-        .fillMaxHeight()
-        .padding(8.dp)
-    ) {
+    Column(modifier = modifier) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -106,7 +99,7 @@ fun TodoListPage(viewModel: TodoViewModel){
         todoList?.let {
             LazyColumn(
                 content = {
-                    itemsIndexed(it){index: Int, item: Todo ->
+                    itemsIndexed(it){ _: Int, item: Todo ->
                         TodoListsCard(todo = item, onDelete = {
                             viewModel.deleteTodo(item.id)
                         })
